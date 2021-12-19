@@ -11,12 +11,12 @@ io.on('connection', (socket) => {
   socket.on('join', (username) => {
     users.push({ id: socket.id, username })
     io.emit('join', username)
-  })
 
-  io.to(socket.id).emit(
-    'history',
-    history.map(({ username, text }) => `${username}: ${text}`)
-  )
+    io.to(socket.id).emit(
+      'history',
+      history.map(({ username, text }) => `${username}: ${text}`)
+    )
+  })
 
   socket.on('message', (message) => {
     const { username, text } = message
@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
 
     users = users.filter((user) => user.id !== socket.id)
 
-    io.emit('leave', disconnectedUser.username)
+    io.emit('leave', disconnectedUser?.username)
 
     if (!users?.length) {
       history = []

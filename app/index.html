@@ -13,7 +13,7 @@
 
     <title>Web Chat</title>
   </head>
-  <body>
+  <body class="p-3">
     <!-- Modal -->
     <div
       class="modal fade"
@@ -78,10 +78,24 @@
     </div>
 
     <!-- Chat -->
-    <div class="d-none" id="chat">
-      <input id="message" placeholder="Message" />
-      <button id="send">Send</button>
-      <ul></ul>
+    <div class="container d-flex h-100">
+      <!-- users list -->
+      <div
+        class="ms-2 d-flex flex-column h-100 justify-content-end d-none"
+        id="chat"
+      >
+        <div id="messages" class="d-flex flex-column flex-1"></div>
+        <div class="input-group">
+          <input
+            id="message"
+            type="text"
+            class="form-control"
+            placeholder="Message"
+            aria-label="Message"
+          />
+          <button id="send" type="button" class="btn btn-primary">Send</button>
+        </div>
+      </div>
     </div>
 
     <!---------------------------------------------- Scripts ------------------------------------------------>

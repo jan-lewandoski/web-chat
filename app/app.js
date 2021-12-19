@@ -50,6 +50,7 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
   // Handle sending new message
   document.querySelector('#send').addEventListener('click', () => {
     const text = document.querySelector('#message').value
+    document.querySelector('#message').value = ''
     const message = {
       username,
       text,
@@ -61,18 +62,35 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
 // Handle history
 socket.on('history', (history) => {
   history.forEach((message) => {
-    console.log(message)
-    const el = document.createElement('li')
-    el.innerHTML = message
-    document.querySelector('ul').appendChild(el)
+    const div = document.createElement('div')
+    div.classList.add(
+      'px-3',
+      'py-2',
+      'mb-2',
+      'bg-primary',
+      'rounded-pill',
+      'text-light'
+    )
+    div.style.width = 'fit-content'
+    div.innerHTML = message
+    document.querySelector('#messages').appendChild(div)
   })
 })
 
 // Handle new messages
-socket.on('message', (text) => {
-  const el = document.createElement('li')
-  el.innerHTML = text
-  document.querySelector('ul').appendChild(el)
+socket.on('message', (message) => {
+  const div = document.createElement('div')
+  div.classList.add(
+    'px-3',
+    'py-2',
+    'mb-2',
+    'bg-primary',
+    'rounded-pill',
+    'text-light'
+  )
+  div.style.width = 'fit-content'
+  div.innerHTML = message
+  document.querySelector('#messages').appendChild(div)
 })
 
 // 2.
