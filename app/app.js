@@ -38,6 +38,15 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
     toast.show()
   })
 
+  // Inform others that a user has left the room
+  socket.on('leave', (oldUsername) => {
+    const toastEl = document.querySelector('.toast')
+    const toastBodyEl = document.querySelector('.toast-body')
+    toastBodyEl.innerHTML = `<span class="fw-bold">${oldUsername}</span> has left the room...`
+    const toast = new bootstrap.Toast(toastEl)
+    toast.show()
+  })
+
   // Handle sending new message
   document.querySelector('#send').addEventListener('click', () => {
     const text = document.querySelector('#message').value

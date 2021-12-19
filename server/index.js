@@ -4,14 +4,14 @@ const io = require('socket.io')(http, {
   cors: { origin: '*' },
 })
 
-let connectionsCount = 0
+let users = []
 let history = []
 
 io.on('connection', (socket) => {
-  connectionsCount++
-  console.log('a user connected: ', socket.id)
-
-  socket.on('join', (username) => io.emit('join', username))
+  socket.on('join', (username) => {
+    users.push({ id: socket.id, username })
+    io.emit('join', username)
+  })
 
   io.to(socket.id).emit(
     'history',
@@ -27,12 +27,13 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    connectionsCount--
+    const disconnectedUser = users.find((user) => user.id === socket.id)
 
-    console.log('Disconnected')
-    console.log('Clients count: ', connectionsCount)
+    users = users.filter((user) => user.id !== socket.id)
 
-    if (connectionsCount === 0) {
+    io.emit('leave', disconnectedUser.username)
+
+    if (!users?.length) {
       history = []
     }
   })
