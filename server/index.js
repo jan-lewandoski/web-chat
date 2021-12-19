@@ -11,6 +11,8 @@ io.on('connection', (socket) => {
   connectionsCount++
   console.log('a user connected: ', socket.id)
 
+  socket.on('join', (username) => io.emit('join', username))
+
   io.to(socket.id).emit(
     'history',
     history.map(({ username, text }) => `${username}: ${text}`)
@@ -21,7 +23,7 @@ io.on('connection', (socket) => {
 
     history.push({ username, text })
 
-    socket.emit('message', `${username}: ${text}`)
+    io.emit('message', `${username}: ${text}`)
   })
 
   socket.on('disconnect', () => {

@@ -17,7 +17,39 @@ const randomNumber = Math.floor(Math.random() * 100)
 const randomUsername = `user${randomNumber}`
 document.querySelector('#input-username').value = randomUsername
 
-// Receive history
+// Username submitted
+document.querySelector('#btn-username-submit').addEventListener('click', () => {
+  // Save username
+  username = document.querySelector('#input-username').value
+
+  //   Close modal
+  usernameModal.hide()
+
+  // Show the chat
+  document.querySelector('#chat').classList.toggle('d-none')
+
+  // Inform others that a new user joined
+  socket.emit('join', username)
+  socket.on('join', (newUsername) => {
+    const toastEl = document.querySelector('.toast')
+    const toastBodyEl = document.querySelector('.toast-body')
+    toastBodyEl.innerHTML = `<span class="fw-bold">${newUsername}</span> joined the room!`
+    const toast = new bootstrap.Toast(toastEl)
+    toast.show()
+  })
+
+  // Handle sending new message
+  document.querySelector('#send').addEventListener('click', () => {
+    const text = document.querySelector('#message').value
+    const message = {
+      username,
+      text,
+    }
+    socket.emit('message', message)
+  })
+})
+
+// Handle history
 socket.on('history', (history) => {
   history.forEach((message) => {
     console.log(message)
@@ -27,31 +59,11 @@ socket.on('history', (history) => {
   })
 })
 
-// Username submitted
-document.querySelector('#btn-username-submit').addEventListener('click', () => {
-  // Save username
-  username = document.querySelector('#input-username').value
-
-  //   Close modal
-  usernameModal.hide()
-
-  // Init chat
-  document.querySelector('#chat').classList.toggle('d-none')
-
-  socket.on('message', (text) => {
-    const el = document.createElement('li')
-    el.innerHTML = text
-    document.querySelector('ul').appendChild(el)
-  })
-
-  document.querySelector('#send').addEventListener('click', () => {
-    const text = document.querySelector('#message').value
-    const message = {
-      username,
-      text,
-    }
-    socket.emit('message', message)
-  })
+// Handle new messages
+socket.on('message', (text) => {
+  const el = document.createElement('li')
+  el.innerHTML = text
+  document.querySelector('ul').appendChild(el)
 })
 
 // 2.
