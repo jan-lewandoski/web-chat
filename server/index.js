@@ -4,12 +4,35 @@ const io = require('socket.io')(http, {
   cors: { origin: '*' },
 })
 
+let connectionsCount = 0
+let history = []
+
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  connectionsCount++
+  console.log('a user connected: ', socket.id)
+
+  io.to(socket.id).emit(
+    'history',
+    history.map(({ username, text }) => `${username}: ${text}`)
+  )
 
   socket.on('message', (message) => {
-    console.log(message)
-    io.emit('message', `${socket.id.substr(0, 2)} said ${message}`)
+    const { username, text } = message
+
+    history.push({ username, text })
+
+    socket.emit('message', `${username}: ${text}`)
+  })
+
+  socket.on('disconnect', () => {
+    connectionsCount--
+
+    console.log('Disconnected')
+    console.log('Clients count: ', connectionsCount)
+
+    if (connectionsCount === 0) {
+      history = []
+    }
   })
 })
 
