@@ -1,7 +1,7 @@
 const socket = io('ws://localhost:8080')
 
 let username = ''
-let connected = false
+let timer = null
 
 // Open username modal
 const usernameModal = new bootstrap.Modal(
@@ -36,7 +36,6 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
   // Inform others that a new user joined
   socket.emit('join', username)
   socket.on('join', ({ joined, users }) => {
-    connected = true
     const toastEl = document.querySelector('.toast')
     const toastBodyEl = document.querySelector('.toast-body')
     toastBodyEl.innerHTML = `<span class="fw-bold">${joined}</span> joined the room!`
@@ -68,7 +67,8 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
 
   // Inform others that a user has left the room
   socket.on('leave', ({ left, users }) => {
-    connected = false
+    if (!left) return
+
     const toastEl = document.querySelector('.toast')
     const toastBodyEl = document.querySelector('.toast-body')
     toastBodyEl.innerHTML = `<span class="fw-bold">${left}</span> has left the room...`
@@ -82,11 +82,11 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
       div.classList.add(
         'd-flex',
         'align-items-center',
-        'justify-content-center',
         'px-3',
         'py-2',
         'mb-2',
         'bg-light',
+        'w-100',
         'rounded'
       )
       div.style.width = 'fit-content'
@@ -106,10 +106,14 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
 
     if (userEl && username !== writingUser) {
       userEl.innerText = `${writingUser} is writing...`
+      userEl.classList.remove('bg-light')
+      userEl.classList.add('bg-info')
 
       clearTimeout(timer)
       timer = setTimeout(() => {
-        userEl.innerText = username
+        userEl.innerText = writingUser
+        userEl.classList.remove('bg-info')
+        userEl.classList.add('bg-light')
       }, 1000)
     }
   })
@@ -145,8 +149,6 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
 
   // Handle new messages
   socket.on('message', (message) => {
-    if (!connected) return
-
     const div = document.createElement('div')
     div.classList.add(
       'px-3',
@@ -161,5 +163,3 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
     document.querySelector('#messages').appendChild(div)
   })
 })
-
-let timer = null
