@@ -29,6 +29,10 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
   // Show the chat
   document.querySelector('#chat-wrapper').classList.toggle('d-none')
 
+  document.querySelector('#message').addEventListener('keydown', () => {
+    socket.emit('writing', username)
+  })
+
   // Inform others that a new user joined
   socket.emit('join', username)
   socket.on('join', ({ joined, users }) => {
@@ -46,28 +50,17 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
       div.classList.add(
         'd-flex',
         'align-items-center',
-        'justify-content-center',
         'px-3',
         'py-2',
         'mb-2',
         'bg-light',
+        'w-100',
         'rounded'
       )
       div.style.width = 'fit-content'
 
-      const activeIndicator = document.createElement('div')
-      activeIndicator.classList.add(
-        'p-1',
-        'me-2',
-        'bg-success',
-        'rounded-circle'
-      )
-
-      const username = document.createElement('span')
-      username.innerHTML = user.username
-
-      div.appendChild(activeIndicator)
-      div.appendChild(username)
+      div.innerHTML = user.username
+      div.id = user.username
 
       document.querySelector('#users-list').appendChild(div)
     })
@@ -98,27 +91,31 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
       )
       div.style.width = 'fit-content'
 
-      const activeIndicator = document.createElement('div')
-      activeIndicator.classList.add(
-        'p-1',
-        'me-2',
-        'bg-success',
-        'rounded-circle'
-      )
-
-      const username = document.createElement('span')
-      username.innerHTML = user.username
-
-      div.appendChild(activeIndicator)
-      div.appendChild(username)
+      div.id = username
+      div.innerHTML = user.username
 
       document.querySelector('#users-list').appendChild(div)
     })
   })
 
+  // Handle writing feature
+  socket.on('writing', (writingUser) => {
+    const userEl = Array.from(
+      document.querySelector('#users-list').children
+    )?.find((node) => node.id === writingUser)
+
+    if (userEl && username !== writingUser) {
+      userEl.innerText = `${writingUser} is writing...`
+
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        userEl.innerText = username
+      }, 1000)
+    }
+  })
+
   // Handle sending new message
   document.querySelector('#send').addEventListener('click', () => {
-    console.log('here')
     const text = document.querySelector('#message').value
     document.querySelector('#message').value = ''
     const message = {
@@ -164,3 +161,5 @@ document.querySelector('#btn-username-submit').addEventListener('click', () => {
     document.querySelector('#messages').appendChild(div)
   })
 })
+
+let timer = null

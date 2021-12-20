@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
     io.emit('message', `${username}: ${text}`)
   })
 
+  socket.on('writing', (username) => {
+    io.emit('writing', username)
+  })
+
   socket.on('disconnect', () => {
     const disconnectedUser = users.find((user) => user.id === socket.id)
 
