@@ -10,7 +10,10 @@ let history = []
 io.on('connection', (socket) => {
   socket.on('join', (username) => {
     users.push({ id: socket.id, username })
-    io.emit('join', username)
+    io.emit('join', {
+      joined: username,
+      users,
+    })
 
     io.to(socket.id).emit(
       'history',
@@ -31,7 +34,10 @@ io.on('connection', (socket) => {
 
     users = users.filter((user) => user.id !== socket.id)
 
-    io.emit('leave', disconnectedUser?.username)
+    io.emit('leave', {
+      left: disconnectedUser?.username,
+      users,
+    })
 
     if (!users?.length) {
       history = []
